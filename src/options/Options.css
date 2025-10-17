@@ -7,9 +7,3 @@ body {
   width: 100%;
   height: 100%;
 }
-
-.Mui-selected,
-button:focus,
-button:focus-visible {
-  outline: none;
-}
