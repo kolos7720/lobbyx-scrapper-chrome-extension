@@ -8,9 +8,6 @@ export default function ListOfVacanciesInput() {
       variant="outlined"
       helperText="Each URL should be on a new line."
       multiline
-      sx={{
-        fontSize: '10px',
-      }}
     />
   )
 }
