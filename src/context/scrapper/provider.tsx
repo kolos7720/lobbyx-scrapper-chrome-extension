@@ -16,18 +16,18 @@ export default function ScrapperProvider({ children }: Props) {
 
   const init = async () => {
     const storage = await chrome.storage.session.get('state')
-    console.log('persistedState', storage.state);
-    setState((currentState) => ({
-      ...currentState,
-      ...storage.state,
-    }));
+
+    if (storage.state) {
+      setState((currentState) => ({
+        ...currentState,
+        ...storage.state,
+      }));
+    }
 
     chrome.storage.session.onChanged.addListener(async (changes) => {
       setState(changes.state.newValue)
     })
   }
-
-  console.log('state', state);
 
   useEffect(() => {
     init();
