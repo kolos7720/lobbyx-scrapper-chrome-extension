@@ -1,10 +1,13 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
+import useSettingsContext from "../../context/settings/useSettingsContext.ts";
 
 export default function TotalProgress() {
-  const total = 82;
-  const value = 12;
+  const { vacanciesURLsList } = useSettingsContext();
 
-  const percent = (value / total) * 100;
+  const total = vacanciesURLsList.length;
+  const current = 1;
+
+  const percent = (current / total) * 100;
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -15,7 +18,7 @@ export default function TotalProgress() {
         <Typography
           variant="body2"
           sx={{ color: 'text.secondary' }}
-        >{`${value}/${total}`}</Typography>
+        >{`${current}/${total}`}</Typography>
       </Box>
     </Box>
   );
