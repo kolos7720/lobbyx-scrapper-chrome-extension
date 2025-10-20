@@ -8,6 +8,7 @@ import TotalProgress from "./components/TotalProgress.tsx";
 import SettingsProvider from "../context/settings/provider.tsx";
 import NoVacanciesAlert from "./components/NoVacanciesAlert.tsx";
 import useSettingsContext from "../context/settings/useSettingsContext.ts";
+import ScrapperProvider from "../context/scrapper/provider.tsx";
 
 function SidePanel() {
   const { vacanciesURLsList } = useSettingsContext();
@@ -32,7 +33,9 @@ function SidePanel() {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <SettingsProvider>
-      <SidePanel />
+      <ScrapperProvider>
+        <SidePanel />
+      </ScrapperProvider>
     </SettingsProvider>
   </StrictMode>
 )
