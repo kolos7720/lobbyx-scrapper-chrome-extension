@@ -6,14 +6,24 @@ import '../index.css'
 import StartButton from "./components/StartButton.tsx";
 import TotalProgress from "./components/TotalProgress.tsx";
 import SettingsProvider from "../context/settings/provider.tsx";
+import NoVacanciesAlert from "./components/NoVacanciesAlert.tsx";
+import useSettingsContext from "../context/settings/useSettingsContext.ts";
 
 function SidePanel() {
+  const { vacanciesURLsList } = useSettingsContext();
+
+  const isVacanciesListEmpty = vacanciesURLsList.length === 0;
+
   return (
     <>
       <CssBaseline />
       <Stack spacing={2} padding={3}>
         <StartButton />
-        <TotalProgress />
+        {
+          isVacanciesListEmpty ?
+            <NoVacanciesAlert /> :
+            <TotalProgress />
+        }
       </Stack>
     </>
   );
