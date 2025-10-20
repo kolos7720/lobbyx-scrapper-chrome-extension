@@ -1,12 +1,14 @@
 import { createContext } from "react";
 import type { Settings } from "../../types.ts";
 
-export type SettingsContextType = {
+export type SettingsContextStateType = {
   settings: Settings & {};
 
   isLoading: boolean;
   vacanciesURLsList: string[];
+}
 
+export type SettingsContextType = SettingsContextStateType & {
   setSettings: (settings: Settings) => Promise<void>;
   openSettingsPage: () => Promise<void>;
 }
@@ -23,9 +25,6 @@ export const initialSettingsContextState = {
 
   isLoading: false,
   vacanciesURLsList: [],
-
-  setSettings: async () => {},
-  openSettingsPage: async () => {},
 }
 
-export const SettingsContext = createContext<SettingsContextType>(initialSettingsContextState);
+export const SettingsContext = createContext<SettingsContextType>({} as SettingsContextType);

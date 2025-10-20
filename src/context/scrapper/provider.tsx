@@ -1,77 +1,50 @@
-import { type PropsWithChildren, useCallback, useMemo, useReducer, useState } from "react";
-import { initialScrapperContextState, ScrapperContext, type ScrapperContextType } from "./context.ts";
+import { type PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  initialScrapperContextState,
+  ScrapperContext,
+  type ScrapperContextStateType,
+} from "./context.ts";
 import useSettingsContext from "../settings/useSettingsContext.ts";
+import { MessageTypes, type StartMessage } from "../../messages.ts";
 
-type Props = PropsWithChildren & {}
-
-type State = ScrapperContextType;
-
-enum ActionType {
-  Start = 'START',
-  Finish = 'FINISH',
-}
-
-type Action = { type: ActionType.Start }
-  | { type: ActionType.Finish }
-
-function reducer(state: State, action: Action) {
-  switch (action.type) {
-    case ActionType.Start:
-      return {
-        ...state,
-        isScrapping: true,
-        isFinished: false,
-      }
-
-    case ActionType.Finish:
-      return {
-        ...state,
-        isScrapping: false,
-        isFinished: true,
-      }
-
-    default:
-      return state;
-  }
-}
+type Props = PropsWithChildren & {};
+type State = ScrapperContextStateType;
 
 export default function ScrapperProvider({ children }: Props) {
-  const [state, dispatch] = useReducer(reducer, initialScrapperContextState);
-  const { vacanciesURLsList } = useSettingsContext();
+  const [state, setState] = useState<State>(initialScrapperContextState)
+  const { vacanciesURLsList } = useSettingsContext()
 
-  console.log('vacanciesURLsList', vacanciesURLsList);
+  const init = async () => {
+    const storage = await chrome.storage.session.get('state')
+    console.log('persistedState', storage.state);
+    setState((currentState) => ({
+      ...currentState,
+      ...storage.state,
+    }));
 
-  const [stack, setStack] = useState<string[]>([]);
+    chrome.storage.session.onChanged.addListener(async (changes) => {
+      setState(changes.state.newValue)
+    })
+  }
 
-  const parseVacancy = useCallback(async (url: string) => {
-    chrome.tabs.create({ url, active: false }, (tab) => {
-      chrome.scripting.executeScript({
-        target: { tabId: tab.id! },
-        files: ["content.js"]
-      });
-    });
-  }, [])
+  console.log('state', state);
+
+  useEffect(() => {
+    init();
+  }, []);
 
   const start = useCallback(async () => {
-    dispatch({ type: ActionType.Start })
-    setStack([...vacanciesURLsList.reverse()])
-
-    const url = stack.pop();
-
-    if (url) {
-      await parseVacancy(url)
-    } else {
-      dispatch({ type: ActionType.Finish })
-
-      console.log(Error('No vacancies left'))
-    }
-  }, [])
+    await chrome.runtime.sendMessage<StartMessage>({
+      type: MessageTypes.Start,
+      vacancies: vacanciesURLsList
+    })
+  }, [vacanciesURLsList])
 
   const memoizedValue = useMemo(() => ({
     ...state,
 
     start,
-  }), [])
+  }), [state, start])
 
   return (
     <ScrapperContext.Provider value={memoizedValue}>
