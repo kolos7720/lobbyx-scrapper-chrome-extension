@@ -8,7 +8,15 @@
   "side_panel": {
     "default_path": "index.html"
   },
-  "permissions": ["scripting", "tabs", "sidePanel", "commands", "contextMenus"],
+  "options_page": "options.html",
+  "permissions": [
+    "scripting",
+    "tabs",
+    "sidePanel",
+    "commands",
+    "contextMenus",
+    "storage"
+  ],
   "host_permissions": ["https://hirefire.thelobbyx.com/*"],
   "background": {
     "service_worker": "background.js"

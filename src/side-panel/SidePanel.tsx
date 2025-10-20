@@ -1,10 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { Stack, CssBaseline } from "@mui/material";
 import '../index.css'
 
 import StartButton from "./components/StartButton.tsx";
 import TotalProgress from "./components/TotalProgress.tsx";
-import { Stack, CssBaseline } from "@mui/material";
+import SettingsProvider from "../context/settings/provider.tsx";
 
 function SidePanel() {
   return (
@@ -20,6 +21,8 @@ function SidePanel() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <SidePanel />
-  </StrictMode>,
+    <SettingsProvider>
+      <SidePanel />
+    </SettingsProvider>
+  </StrictMode>
 )

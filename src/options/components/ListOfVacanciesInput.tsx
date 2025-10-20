@@ -1,9 +1,9 @@
 import { TextField } from "@mui/material";
 import { useFormikContext } from "formik";
-import type { FormikValues } from "../types.ts";
+import type { Settings } from "../../types.ts";
 
 export default function ListOfVacanciesInput() {
-  const formik = useFormikContext<FormikValues>();
+  const formik = useFormikContext<Settings>();
 
   return (
     <TextField

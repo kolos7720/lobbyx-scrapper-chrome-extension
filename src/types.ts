@@ -1,4 +1,4 @@
-export type FormikValues = {
+export type Settings = {
   webHookURL: string;
   vacanciesURLs: string;
 }
