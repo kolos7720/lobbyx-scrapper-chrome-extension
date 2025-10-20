@@ -24,11 +24,38 @@ chrome.runtime.onMessage.addListener(async (message) => {
   console.log('message', message);
 
   switch (message.type) {
-    case MessageTypes.Start:
+    case MessageTypes.Start: {
       stack.push(...message.vacancies);
-
       await setState({ isScrapping: true })
+      openNextPage();
 
       break;
+    }
+
+    case MessageTypes.ApplicationScrapped: {
+      // trigger web hook
+      break;
+    }
+
+    case MessageTypes.PageScrapped: {
+      // go to next page
+      break;
+    }
   }
+
 })
+
+function openNextPage() {
+  const url = stack.pop();
+
+  if (url) {
+    chrome.tabs.create({ url, active: false }, (tab) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id! },
+        files: ["content.js"]
+      });
+    });
+  } else {
+
+  }
+}
