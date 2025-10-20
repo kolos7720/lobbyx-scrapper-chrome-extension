@@ -64,6 +64,10 @@ export default function SettingsProvider({ children }: Props) {
     }
   }, [])
 
+  const openSettingsPage = useCallback(async () => {
+    await chrome.runtime.openOptionsPage()
+  }, [])
+
   const vacanciesURLsList = useMemo(() => {
     return state.settings.vacanciesURLs
       .split('\n')
@@ -75,8 +79,9 @@ export default function SettingsProvider({ children }: Props) {
       ...state,
       vacanciesURLsList,
       setSettings,
+      openSettingsPage,
     }
-  }, [state, vacanciesURLsList])
+  }, [state, vacanciesURLsList, setSettings])
 
   return (
     <SettingsContext.Provider value={memoizedValue}>
