@@ -1,34 +1,34 @@
-// service-worker.js
-chrome.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch((error) => console.error(error));
+import "./sidePanel.ts";
+import "./contextMenus.ts";
+import { MessageTypes } from "../messages.ts";
+import {
+  initialScrapperContextState,
+  type ScrapperContextStateType,
+} from "../context/scrapper/context.ts";
 
-chrome.commands.onCommand.addListener((command) => {
-  if (command === "open_side_panel") {
-    chrome.windows.getCurrent((w) => {
-      chrome.sidePanel.open({ windowId: w.id! });
-    });
+type State = ScrapperContextStateType;
+
+const stack: string[] = [];
+let state: State = initialScrapperContextState;
+
+const setState = async (newState: Partial<State>) => {
+  state = {
+    ...state,
+    ...newState,
   }
-});
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: "add-vacancy-to-list",
-    title: "Add vacancy to the list",
-    contexts: ["page"],
-    documentUrlPatterns: [
-      "https://hirefire.thelobbyx.com/vacancies/*"
-    ]
-  });
+  await chrome.storage.session.set({ state })
+}
 
-  const handleOnPageClick = (info: any, tab: any) => {
-    console.log("Context Info: ", info);
-    console.log("Context Tab: ", tab);
-  };
+chrome.runtime.onMessage.addListener(async (message) => {
+  console.log('message', message);
 
-  chrome.contextMenus.onClicked.addListener((info, tab) => {
-    const { menuItemId } = info;
+  switch (message.type) {
+    case MessageTypes.Start:
+      stack.push(...message.vacancies);
 
-    if (menuItemId === "some-id-page") handleOnPageClick(info, tab);
-  });
-});
+      await setState({ isScrapping: true })
+
+      break;
+  }
+})

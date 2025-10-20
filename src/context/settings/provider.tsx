@@ -1,10 +1,13 @@
-import { initialSettingsContextState, SettingsContext, type SettingsContextType } from "./context.ts";
+import {
+  initialSettingsContextState,
+  SettingsContext,
+  type SettingsContextStateType,
+} from "./context.ts";
 import { type PropsWithChildren, useCallback, useEffect, useMemo, useReducer } from "react";
 import { StorageKeys } from "../../constants.ts";
 
 type Props = PropsWithChildren & {}
-
-type State = SettingsContextType;
+type State = SettingsContextStateType;
 
 enum ActionType {
   Loading = 'LOADING',
@@ -14,7 +17,7 @@ enum ActionType {
 type Action = { type: ActionType.Loading, payload: boolean }
   | { type: ActionType.SetSettings, payload: State['settings'] }
 
-function reducer(state: State, action: Action) {
+const reducer = (state: State, action: Action) => {
   switch (action.type) {
     case ActionType.Loading:
       return {
