@@ -1,4 +1,4 @@
-import type { Application } from "./types.ts";
+import type { Application, Settings } from "./types.ts";
 
 export enum MessageTypes {
   Start = 'START',
@@ -10,10 +10,11 @@ export enum MessageTypes {
 export type StartMessage = {
   type: MessageTypes.Start;
   vacancies: string[];
+  settings: Settings;
 }
 
 export type FinishMessage = {
-  type: MessageTypes.Start;
+  type: MessageTypes.Finish;
 }
 
 export type ApplicationScrapped = {
@@ -24,5 +25,3 @@ export type ApplicationScrapped = {
 export type PageScrapped = {
   type: MessageTypes.PageScrapped;
 }
-
-

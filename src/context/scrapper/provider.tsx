@@ -11,6 +11,8 @@ type Props = PropsWithChildren & {};
 type State = ScrapperContextStateType;
 
 export default function ScrapperProvider({ children }: Props) {
+  const { settings } = useSettingsContext();
+
   const [state, setState] = useState<State>(initialScrapperContextState)
   const { vacanciesURLsList } = useSettingsContext()
 
@@ -36,7 +38,8 @@ export default function ScrapperProvider({ children }: Props) {
   const start = useCallback(async () => {
     await chrome.runtime.sendMessage<StartMessage>({
       type: MessageTypes.Start,
-      vacancies: vacanciesURLsList
+      vacancies: vacanciesURLsList,
+      settings,
     })
   }, [vacanciesURLsList])
 
