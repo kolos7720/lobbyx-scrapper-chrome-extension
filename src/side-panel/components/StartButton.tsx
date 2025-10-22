@@ -6,8 +6,6 @@ export default function StartButton() {
   const { vacanciesURLsList } = useSettingsContext();
   const { isScrapping, start } = useScrapperContext();
 
-  console.log('isScrapping', isScrapping);
-
   const disabled = vacanciesURLsList.length === 0 || isScrapping;
 
   return (

@@ -5,11 +5,13 @@ import {
   initialScrapperContextState,
   type ScrapperContextStateType,
 } from "../context/scrapper/context.ts";
+import type { Application, Settings } from "../types.ts";
 
 type State = ScrapperContextStateType;
 
 const stack: string[] = [];
 let state: State = initialScrapperContextState;
+let settings: Settings | null = null;
 
 const setState = async (newState: Partial<State>) => {
   state = {
@@ -26,6 +28,8 @@ chrome.runtime.onMessage.addListener(async (message) => {
   switch (message.type) {
     case MessageTypes.Start: {
       stack.push(...message.vacancies);
+      settings = message.settings;
+
       await setState({ isScrapping: true })
       openNextPage();
 
@@ -33,7 +37,8 @@ chrome.runtime.onMessage.addListener(async (message) => {
     }
 
     case MessageTypes.ApplicationScrapped: {
-      // trigger web hook
+      await triggerWebhook(message.application);
+
       break;
     }
 
@@ -58,4 +63,20 @@ function openNextPage() {
   } else {
 
   }
+}
+
+async function triggerWebhook(application: Application) {
+  const webhookUrl = settings?.webHookURL;
+
+  if (!webhookUrl) throw new Error('Webhook URL not found');
+
+  await fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      application,
+    }),
+  })
 }

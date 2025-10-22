@@ -17,7 +17,7 @@
     "contextMenus",
     "storage"
   ],
-  "host_permissions": ["https://hirefire.thelobbyx.com/*"],
+  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
   },
