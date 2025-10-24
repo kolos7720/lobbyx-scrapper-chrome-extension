@@ -1,10 +1,10 @@
 import {
-  initialSettingsContextState,
   SettingsContext,
   type SettingsContextStateType,
 } from "./context.ts";
 import { type PropsWithChildren, useCallback, useEffect, useMemo, useReducer } from "react";
 import { StorageKeys } from "../../constants.ts";
+import { initialSettingsContextState } from "./constants.ts";
 
 type Props = PropsWithChildren & {}
 type State = SettingsContextStateType;

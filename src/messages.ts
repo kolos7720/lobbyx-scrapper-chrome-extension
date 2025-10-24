@@ -17,11 +17,12 @@ export type FinishMessage = {
   type: MessageTypes.Finish;
 }
 
-export type ApplicationScrapped = {
+export type ApplicationScrappedMessage = {
   type: MessageTypes.ApplicationScrapped;
   application: Application;
 }
 
-export type PageScrapped = {
+export type PageScrappedMessage = {
   type: MessageTypes.PageScrapped;
+  nextPageURL?: string;
 }

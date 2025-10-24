@@ -1,13 +1,10 @@
 import "./sidePanel.ts";
 import "./contextMenus.ts";
-import { MessageTypes } from "../messages.ts";
-import {
-  initialScrapperContextState,
-  type ScrapperContextStateType,
-} from "../context/scrapper/context.ts";
+import { type FinishMessage, MessageTypes } from "../messages.ts";
 import type { Application, Settings } from "../types.ts";
+import { initialScrapperContextState } from "../context/scrapper/constants.ts";
 
-type State = ScrapperContextStateType;
+type State = any;
 
 const stack: string[] = [];
 let state: State = initialScrapperContextState;
@@ -43,14 +40,16 @@ chrome.runtime.onMessage.addListener(async (message) => {
     }
 
     case MessageTypes.PageScrapped: {
-      // go to next page
+      if (message.nextPageURL) stack.push(message.nextPageURL);
+      openNextPage();
+
       break;
     }
   }
 
 })
 
-function openNextPage() {
+async function openNextPage() {
   const url = stack.pop();
 
   if (url) {
@@ -61,7 +60,9 @@ function openNextPage() {
       });
     });
   } else {
-
+    await chrome.runtime.sendMessage<FinishMessage>({
+      type: MessageTypes.Finish,
+    });
   }
 }
 

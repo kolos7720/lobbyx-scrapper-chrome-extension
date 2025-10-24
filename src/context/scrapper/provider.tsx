@@ -1,11 +1,11 @@
 import { type PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
 import {
-  initialScrapperContextState,
   ScrapperContext,
   type ScrapperContextStateType,
 } from "./context.ts";
 import useSettingsContext from "../settings/useSettingsContext.ts";
 import { MessageTypes, type StartMessage } from "../../messages.ts";
+import { initialScrapperContextState } from "./constants.ts";
 
 type Props = PropsWithChildren & {};
 type State = ScrapperContextStateType;

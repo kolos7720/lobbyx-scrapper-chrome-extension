@@ -1,22 +1,29 @@
 import type { Application } from "../types.ts";
-import { type ApplicationScrapped, MessageTypes } from "../messages.ts";
+import { type ApplicationScrappedMessage, MessageTypes, type PageScrappedMessage } from "../messages.ts";
 
 window.onload = async () => {
   const applicationNodes = document.querySelectorAll('[data-candidate]')
 
-  applicationNodes.forEach((element, index) => {
-    if (index > 2) return;
+  let index = 0;
+
+  for (const element of applicationNodes) {
+    // if (index > 2) return;
 
     const application = parseApplicationObjectFromElement(element as HTMLElement);
 
     if (!application.scrapped) {
-      // send to backend
-      handleApplication(application);
+      await handleApplication(application);
       // markAsScrapped(element as HTMLElement);
     } else {
-      finish();
+      await finish();
     }
-  })
+
+    index++;
+  }
+
+  const nextPageURL = getNextPageURL();
+
+  await finish(nextPageURL);
 }
 
 function parseApplicationObjectFromElement(element: HTMLElement): Application {
@@ -47,7 +54,7 @@ function parseApplicationObjectFromElement(element: HTMLElement): Application {
 }
 
 async function handleApplication(application: Application) {
-  await chrome.runtime.sendMessage<ApplicationScrapped>({ type: MessageTypes.ApplicationScrapped, application });
+  await chrome.runtime.sendMessage<ApplicationScrappedMessage>({ type: MessageTypes.ApplicationScrapped, application });
 }
 
 // function markAsScrapped(element: HTMLElement) {
@@ -87,6 +94,20 @@ async function handleApplication(application: Application) {
 //   saveChanges();
 // }
 
-function finish() {
+function getNextPageURL() {
+  const pagination = document.querySelector('.pagination')
+  const currentPage = pagination?.querySelector('.page.current')
+  const nextPage = currentPage?.nextElementSibling;
+  const nextPageLink = nextPage?.querySelector('a');
 
+  return nextPageLink?.href;
+}
+
+async function finish(nextPageURL?: string) {
+  await chrome.runtime.sendMessage<PageScrappedMessage>({
+    type: MessageTypes.PageScrapped,
+    nextPageURL,
+  });
+
+  window.close();
 }
