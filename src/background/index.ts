@@ -38,6 +38,12 @@ chrome.runtime.onMessage.addListener(async (message) => {
       break;
     }
 
+    case MessageTypes.Fail: {
+      await handleError(Error(message.error));
+
+      break;
+    }
+
     case MessageTypes.ApplicationScrapped: {
       await triggerWebhook(message.application);
 
@@ -69,6 +75,7 @@ async function openNextURL(url: string) {
         files: ["content.js"],
       })
     } catch (error) {
+      console.log('error');
       await handleError(error as Error);
     }
   });

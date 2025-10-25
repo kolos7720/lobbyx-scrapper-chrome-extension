@@ -14,8 +14,6 @@ chrome.runtime.onInstalled.addListener(() => {
   };
 
   chrome.contextMenus.onClicked.addListener((info, tab) => {
-    const { menuItemId } = info;
-
-    if (menuItemId === "some-id-page") handleOnPageClick(info, tab);
+    handleOnPageClick(info, tab);
   });
 });

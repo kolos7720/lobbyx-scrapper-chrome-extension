@@ -1,29 +1,37 @@
 import type { Application } from "../types.ts";
-import { type ApplicationScrappedMessage, MessageTypes, type PageScrappedMessage } from "../messages.ts";
+import {
+  type ApplicationScrappedMessage,
+  type FailMessage,
+  MessageTypes,
+  type PageScrappedMessage
+} from "../messages.ts";
 
 window.onload = async () => {
-  const applicationNodes = document.querySelectorAll('[data-candidate]')
+  try {
+    const applicationNodes = document.querySelectorAll('[data-candidate]')
 
-  let index = 0;
+    for (const element of applicationNodes) {
+      const application = parseApplicationObjectFromElement(element as HTMLElement);
 
-  for (const element of applicationNodes) {
-    // if (index > 2) return;
-
-    const application = parseApplicationObjectFromElement(element as HTMLElement);
-
-    if (!application.scrapped) {
-      await handleApplication(application);
-      // markAsScrapped(element as HTMLElement);
-    } else {
-      await finish();
+      if (!application.scrapped) {
+        await handleApplication(application);
+        markAsScrapped(element as HTMLElement);
+      } else {
+        await finish();
+      }
     }
 
-    index++;
+    const nextPageURL = getNextPageURL();
+
+    await finish(nextPageURL);
+  } catch (error) {
+    console.error(error);
+
+    await chrome.runtime.sendMessage<FailMessage>({
+      type: MessageTypes.Fail,
+      error: error?.toString(),
+    })
   }
-
-  const nextPageURL = getNextPageURL();
-
-  await finish(nextPageURL);
 }
 
 function parseApplicationObjectFromElement(element: HTMLElement): Application {
@@ -57,42 +65,42 @@ async function handleApplication(application: Application) {
   await chrome.runtime.sendMessage<ApplicationScrappedMessage>({ type: MessageTypes.ApplicationScrapped, application });
 }
 
-// function markAsScrapped(element: HTMLElement) {
-//   function enableEditMode() {
-//     const editButton = element.querySelector('[data-action="vacancies-show#showForm"]') as HTMLElement;
-//     editButton?.click()
-//   }
-//
-//   function addTag() {
-//     const tag = "scrapped";
-//
-//     const input = element.querySelector('[data-target="candidate-line.tags"]') as HTMLInputElement
-//     const currentInputValue = input.value ? JSON.parse(input.value) : [];
-//     const newInputValue = [...currentInputValue, { value: tag }];
-//     input.value = JSON.stringify(newInputValue)
-//
-//     const tagHTML = `
-//       <tag title="${tag}" contenteditable="false" spellcheck="false" value="${tag}">
-//         <x title=""></x>
-//         <div>
-//           <span class="tagify__tag-text">scrapped</span>
-//         </div>
-//       </tag>
-//     `
-//
-//     const tagsContainer = element.querySelector('.tagify') as HTMLElement;
-//     tagsContainer.insertAdjacentHTML('beforeend', tagHTML);
-//   }
-//
-//   function saveChanges() {
-//     const saveButton = element.querySelector('[type="submit"]') as HTMLElement;
-//     saveButton?.click()
-//   }
-//
-//   enableEditMode();
-//   addTag();
-//   saveChanges();
-// }
+function markAsScrapped(element: HTMLElement) {
+  function enableEditMode() {
+    const editButton = element.querySelector('[data-action="vacancies-show#showForm"]') as HTMLElement;
+    editButton?.click()
+  }
+
+  function addTag() {
+    const tag = "scrapped";
+
+    const input = element.querySelector('[data-target="candidate-line.tags"]') as HTMLInputElement
+    const currentInputValue = input.value ? JSON.parse(input.value) : [];
+    const newInputValue = [...currentInputValue, { value: tag }];
+    input.value = JSON.stringify(newInputValue)
+
+    const tagHTML = `
+      <tag title="${tag}" contenteditable="false" spellcheck="false" value="${tag}">
+        <x title=""></x>
+        <div>
+          <span class="tagify__tag-text">scrapped</span>
+        </div>
+      </tag>
+    `
+
+    const tagsContainer = element.querySelector('.tagify') as HTMLElement;
+    tagsContainer.insertAdjacentHTML('beforeend', tagHTML);
+  }
+
+  function saveChanges() {
+    const saveButton = element.querySelector('[type="submit"]') as HTMLElement;
+    saveButton?.click()
+  }
+
+  enableEditMode();
+  addTag();
+  saveChanges();
+}
 
 function getNextPageURL() {
   const pagination = document.querySelector('.pagination')
