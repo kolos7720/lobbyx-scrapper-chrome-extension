@@ -1,10 +1,11 @@
 import "./sidePanel.ts";
-import "./contextMenus.ts";
-import { type FinishMessage, MessageTypes } from "../messages.ts";
+// import "./contextMenus.ts";
+import { MessageTypes } from "../messages.ts";
 import type { Application, Settings } from "../types.ts";
 import { initialScrapperContextState } from "../context/scrapper/constants.ts";
+import type { ScrapperContextStateType } from "../context/scrapper/types.ts";
 
-type State = any;
+type State = ScrapperContextStateType;
 
 const stack: string[] = [];
 let state: State = initialScrapperContextState;
@@ -24,11 +25,11 @@ chrome.runtime.onMessage.addListener(async (message) => {
 
   switch (message.type) {
     case MessageTypes.Start: {
-      stack.push(...message.vacancies);
+      stack.push(...message.vacancies.reverse());
       settings = message.settings;
 
-      await setState({ isScrapping: true })
-      openNextPage();
+      await setState({ isScrapping: true, isFinished: false, currentVacancyIndex: 0 })
+      await next();
 
       break;
     }
@@ -41,28 +42,49 @@ chrome.runtime.onMessage.addListener(async (message) => {
 
     case MessageTypes.PageScrapped: {
       if (message.nextPageURL) stack.push(message.nextPageURL);
-      openNextPage();
+      await next();
 
       break;
     }
   }
-
 })
 
-async function openNextPage() {
+function getListOfVacancies() {
+  return settings?.vacanciesURLs.split('\n') || [];
+}
+
+function findVacancyIndex(url: string) {
+  return getListOfVacancies().findLastIndex((vacancyURL) => url.includes(vacancyURL));
+}
+
+async function openNextURL(url: string) {
+  chrome.tabs.create({ url, active: false }, (tab) => {
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id! },
+      files: ["content.js"]
+    });
+  });
+
+  await setState({ currentVacancyIndex: findVacancyIndex(url) })
+}
+
+async function finish() {
+  await setState({
+    isScrapping: false,
+    isFinished: true,
+    currentVacancyIndex: getListOfVacancies().length
+  });
+
+  console.log('Finished!');
+}
+
+async function next() {
   const url = stack.pop();
 
   if (url) {
-    chrome.tabs.create({ url, active: false }, (tab) => {
-      chrome.scripting.executeScript({
-        target: { tabId: tab.id! },
-        files: ["content.js"]
-      });
-    });
+    await openNextURL(url)
   } else {
-    await chrome.runtime.sendMessage<FinishMessage>({
-      type: MessageTypes.Finish,
-    });
+    await finish();
   }
 }
 

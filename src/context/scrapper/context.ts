@@ -1,9 +1,5 @@
 import { createContext } from "react";
-
-export type ScrapperContextStateType = {
-  isScrapping: boolean;
-  isFinished: boolean;
-}
+import type { ScrapperContextStateType } from "./types.ts";
 
 export type ScrapperContextType = ScrapperContextStateType & {
   start: () => Promise<void>;

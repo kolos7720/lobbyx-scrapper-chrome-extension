@@ -1,11 +1,13 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
 import useSettingsContext from "../../context/settings/useSettingsContext.ts";
+import useScrapperContext from "../../context/scrapper/useScrapperContext.ts";
 
 export default function TotalProgress() {
   const { vacanciesURLsList } = useSettingsContext();
+  const { currentVacancyIndex } = useScrapperContext();
 
   const total = vacanciesURLsList.length;
-  const current = 1;
+  const current = currentVacancyIndex;
 
   const percent = (current / total) * 100;
 

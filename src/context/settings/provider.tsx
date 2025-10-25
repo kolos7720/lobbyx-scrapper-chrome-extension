@@ -1,10 +1,10 @@
 import {
+  initialSettingsContextState,
   SettingsContext,
   type SettingsContextStateType,
 } from "./context.ts";
 import { type PropsWithChildren, useCallback, useEffect, useMemo, useReducer } from "react";
 import { StorageKeys } from "../../constants.ts";
-import { initialSettingsContextState } from "./constants.ts";
 
 type Props = PropsWithChildren & {}
 type State = SettingsContextStateType;
@@ -72,9 +72,13 @@ export default function SettingsProvider({ children }: Props) {
   }, [])
 
   const vacanciesURLsList = useMemo(() => {
-    return state.settings.vacanciesURLs
+    const vacanciesURLs = state.settings.vacanciesURLs
       .split('\n')
       .map(url => url.trim()).filter(Boolean);
+
+    console.log('vacanciesURLs', vacanciesURLs);
+
+    return vacanciesURLs;
   }, [state.settings.vacanciesURLs])
 
   const memoizedValue = useMemo(() => {
