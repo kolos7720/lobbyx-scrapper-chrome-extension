@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Stack, CssBaseline } from "@mui/material";
+import { Stack, CssBaseline, Box } from "@mui/material";
 import '../index.css'
 
 import StartButton from "./components/StartButton.tsx";
@@ -9,6 +9,7 @@ import SettingsProvider from "../context/settings/provider.tsx";
 import NoVacanciesAlert from "./components/NoVacanciesAlert.tsx";
 import useSettingsContext from "../context/settings/useSettingsContext.ts";
 import ScrapperProvider from "../context/scrapper/provider.tsx";
+import SettingsButton from "./components/SettingsButton.tsx";
 
 function SidePanel() {
   const { vacanciesURLsList } = useSettingsContext();
@@ -19,6 +20,9 @@ function SidePanel() {
     <>
       <CssBaseline />
       <Stack spacing={2} padding={3}>
+        <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
+          <SettingsButton />
+        </Box>
         <StartButton />
         {
           isVacanciesListEmpty ?
