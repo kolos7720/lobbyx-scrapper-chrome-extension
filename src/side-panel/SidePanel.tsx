@@ -10,9 +10,12 @@ import NoVacanciesAlert from "./components/NoVacanciesAlert.tsx";
 import useSettingsContext from "../context/settings/useSettingsContext.ts";
 import ScrapperProvider from "../context/scrapper/provider.tsx";
 import SettingsButton from "./components/SettingsButton.tsx";
+import useScrapperContext from "../context/scrapper/useScrapperContext.ts";
+import FailedAlert from "./components/FailedAlert.tsx";
 
 function SidePanel() {
   const { vacanciesURLsList } = useSettingsContext();
+  const { isFailed } = useScrapperContext();
 
   const isVacanciesListEmpty = vacanciesURLsList.length === 0;
 
@@ -28,6 +31,9 @@ function SidePanel() {
           isVacanciesListEmpty ?
             <NoVacanciesAlert /> :
             <TotalProgress />
+        }
+        {
+          isFailed && <FailedAlert />
         }
       </Stack>
     </>
