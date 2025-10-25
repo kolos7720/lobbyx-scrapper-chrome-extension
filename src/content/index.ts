@@ -5,6 +5,7 @@ import {
   MessageTypes,
   type PageScrappedMessage
 } from "../messages.ts";
+import sleep from "../utils/sleep.ts";
 
 window.onload = async () => {
   try {
@@ -15,7 +16,7 @@ window.onload = async () => {
 
       if (!application.scrapped) {
         await handleApplication(application);
-        markAsScrapped(element as HTMLElement);
+        await markAsScrapped(element as HTMLElement);
       } else {
         await finish();
       }
@@ -65,13 +66,13 @@ async function handleApplication(application: Application) {
   await chrome.runtime.sendMessage<ApplicationScrappedMessage>({ type: MessageTypes.ApplicationScrapped, application });
 }
 
-function markAsScrapped(element: HTMLElement) {
+async function markAsScrapped(element: HTMLElement) {
   function enableEditMode() {
     const editButton = element.querySelector('[data-action="vacancies-show#showForm"]') as HTMLElement;
-    editButton?.click()
+    editButton.click()
   }
 
-  function addTag() {
+  async function addTag() {
     const tag = "scrapped";
 
     const input = element.querySelector('[data-target="candidate-line.tags"]') as HTMLInputElement
@@ -94,12 +95,16 @@ function markAsScrapped(element: HTMLElement) {
 
   function saveChanges() {
     const saveButton = element.querySelector('[type="submit"]') as HTMLElement;
-    saveButton?.click()
+    saveButton.click()
   }
 
   enableEditMode();
-  addTag();
+  // I know it's not the best way to do it, but it works and
+  // I don't have time to make it better.
+  await sleep(300);
+  await addTag();
   saveChanges();
+  await sleep(100);
 }
 
 function getNextPageURL() {
