@@ -29,11 +29,5 @@
       },
       "description": "Open the side panel"
     }
-  },
-  "content_scripts": [
-    {
-      "matches": ["https://hirefire.thelobbyx.com/"],
-      "js": ["content.js"]
-    }
-  ]
+  }
 }

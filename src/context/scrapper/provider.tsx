@@ -1,11 +1,9 @@
 import { type PropsWithChildren, useCallback, useEffect, useMemo, useState } from "react";
-import {
-  ScrapperContext,
-  type ScrapperContextStateType,
-} from "./context.ts";
+import { ScrapperContext } from "./context.ts";
+import type { ScrapperContextStateType } from "./types.ts";
+import { initialScrapperContextState } from "./constants.ts";
 import useSettingsContext from "../settings/useSettingsContext.ts";
 import { MessageTypes, type StartMessage } from "../../messages.ts";
-import { initialScrapperContextState } from "./constants.ts";
 
 type Props = PropsWithChildren & {};
 type State = ScrapperContextStateType;
@@ -16,7 +14,7 @@ export default function ScrapperProvider({ children }: Props) {
   const [state, setState] = useState<State>(initialScrapperContextState)
   const { vacanciesURLsList } = useSettingsContext()
 
-  const init = async () => {
+  const syncStateWithStorage = async () => {
     const storage = await chrome.storage.session.get('state')
 
     if (storage.state) {
@@ -25,6 +23,10 @@ export default function ScrapperProvider({ children }: Props) {
         ...storage.state,
       }));
     }
+  }
+
+  const init = async () => {
+    await syncStateWithStorage();
 
     chrome.storage.session.onChanged.addListener(async (changes) => {
       setState(changes.state.newValue)

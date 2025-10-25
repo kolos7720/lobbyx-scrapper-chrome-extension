@@ -8,6 +8,16 @@ export type SettingsContextStateType = {
   vacanciesURLsList: string[];
 }
 
+export const initialSettingsContextState = {
+  settings: {
+    webHookURL: '',
+    vacanciesURLs: '',
+  },
+
+  isLoading: false,
+  vacanciesURLsList: [],
+}
+
 export type SettingsContextType = SettingsContextStateType & {
   setSettings: (settings: Settings) => Promise<void>;
   openSettingsPage: () => Promise<void>;
