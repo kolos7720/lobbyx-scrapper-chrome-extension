@@ -28,7 +28,11 @@ chrome.runtime.onMessage.addListener(async (message) => {
       stack.push(...message.vacancies.reverse());
       settings = message.settings;
 
-      await setState({ isScrapping: true, isFinished: false, currentVacancyIndex: 0 })
+      await setState({
+        ...initialScrapperContextState,
+        isScrapping: true,
+        currentVacancyIndex: 0,
+      })
       await next();
 
       break;
@@ -58,11 +62,15 @@ function findVacancyIndex(url: string) {
 }
 
 async function openNextURL(url: string) {
-  chrome.tabs.create({ url, active: false }, (tab) => {
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id! },
-      files: ["content.js"]
-    });
+  chrome.tabs.create({ url, active: false }, async (tab) => {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id! },
+        files: ["content.js"],
+      })
+    } catch (error) {
+      await handleError(error as Error);
+    }
   });
 
   await setState({ currentVacancyIndex: findVacancyIndex(url) })
@@ -103,3 +111,23 @@ async function triggerWebhook(application: Application) {
     }),
   })
 }
+
+async function handleError(error: Error) {
+  await setState({
+    isScrapping: false,
+    isFailed: true,
+    error: error?.message,
+  });
+}
+
+self.addEventListener('error', async (event) => {
+  console.error('Unhandled error in service worker:', event.message, event.filename, event.lineno, event.colno);
+
+  await handleError(event.error);
+});
+
+self.addEventListener('unhandledrejection', async (event) => {
+  console.error('Unhandled Promise Rejection in service worker:', event.reason);
+
+  await handleError(Error(event.reason));
+});
