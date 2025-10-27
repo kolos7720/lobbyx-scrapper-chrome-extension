@@ -36,12 +36,17 @@ window.onload = async () => {
 }
 
 function parseApplicationObjectFromElement(element: HTMLElement): Application {
+  const fullName = element.querySelector('.form-name')!.textContent;
+  const fullNameSplit = fullName.split(' ');
+
   const fields = {
     id: element.dataset.candidate,
     created: element.querySelector('.divTableCellTime')?.textContent.trim(),
     scrapped: false,
     candidate: {
-      fullName: element.querySelector('.form-name')?.textContent,
+      fullName,
+      firstName: fullNameSplit[0].trim(),
+      lastName: fullNameSplit[fullNameSplit.length - 1].trim(),
       email: element.querySelector('.form-info a')?.textContent,
       phoneNumber: element.querySelector('.form-info div:last-child')?.textContent,
     },

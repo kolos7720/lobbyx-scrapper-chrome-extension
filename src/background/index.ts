@@ -113,9 +113,7 @@ async function triggerWebhook(application: Application) {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      application,
-    }),
+    body: JSON.stringify(application),
   })
 }
 
