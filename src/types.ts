@@ -10,6 +10,7 @@ export type Application = {
   candidate: {
     fullName: string;
     firstName: string;
+    middleName?: string | null;
     lastName: string;
     email: string;
     phoneNumber: string;

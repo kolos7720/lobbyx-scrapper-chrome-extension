@@ -38,6 +38,9 @@ window.onload = async () => {
 function parseApplicationObjectFromElement(element: HTMLElement): Application {
   const fullName = element.querySelector('.form-name')!.textContent;
   const fullNameSplit = fullName.split(' ');
+  const firstName = fullNameSplit[0].trim();
+  const middleName = fullNameSplit.length >= 3 ? fullNameSplit[1].trim() : null;
+  const lastName = fullNameSplit[fullNameSplit.length - 1].trim();
 
   const fields = {
     id: element.dataset.candidate,
@@ -45,8 +48,9 @@ function parseApplicationObjectFromElement(element: HTMLElement): Application {
     scrapped: false,
     candidate: {
       fullName,
-      firstName: fullNameSplit[0].trim(),
-      lastName: fullNameSplit[fullNameSplit.length - 1].trim(),
+      firstName,
+      middleName,
+      lastName,
       email: element.querySelector('.form-info a')?.textContent,
       phoneNumber: element.querySelector('.form-info div:last-child')?.textContent,
     },
