@@ -1,5 +1,4 @@
 import "./sidePanel.ts";
-// import "./contextMenus.ts";
 import { MessageTypes } from "../messages.ts";
 import type { Application, Settings } from "../types.ts";
 import { initialScrapperContextState } from "../context/scrapper/constants.ts";
