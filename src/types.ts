@@ -9,6 +9,9 @@ export type Application = {
   scrapped: boolean;
   candidate: {
     fullName: string;
+    firstName: string;
+    middleName?: string | null;
+    lastName: string;
     email: string;
     phoneNumber: string;
     cvLink?: string;
