@@ -1,4 +1,4 @@
-import type { Application } from "../types.ts";
+import type { Application, Settings } from "../types.ts";
 import {
   type ApplicationScrappedMessage,
   type FailMessage,
@@ -6,15 +6,30 @@ import {
   type PageScrappedMessage
 } from "../messages.ts";
 import sleep from "../utils/sleep.ts";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat.js";
+
+dayjs.extend(customParseFormat);
 
 window.onload = async () => {
+  chrome.runtime.onMessage.addListener(async (message) => {
+    if (message.type === MessageTypes.StartPageScrapping) {
+      await init(message.settings);
+    }
+  })
+}
+
+async function init(settings: Settings) {
   try {
     const applicationNodes = document.querySelectorAll('[data-candidate]')
 
     for (const element of applicationNodes) {
       const application = parseApplicationObjectFromElement(element as HTMLElement);
+      const laterThanSkipBeforeOptionValue = dayjs(application.created).isAfter(dayjs(settings.skipBefore));
 
-      if (!application.scrapped) {
+      const isApplicationShouldBeProcessed = !application.scrapped && laterThanSkipBeforeOptionValue;
+
+      if (isApplicationShouldBeProcessed) {
         await handleApplication(application);
         await markAsScrapped(element as HTMLElement);
       } else {
@@ -41,11 +56,13 @@ function parseApplicationObjectFromElement(element: HTMLElement): Application {
   const firstName = fullNameSplit[0].trim();
   const middleName = fullNameSplit.length >= 3 ? fullNameSplit[1].trim() : null;
   const lastName = fullNameSplit[fullNameSplit.length - 1].trim();
+  const created = element.querySelector('.divTableCellTime')?.textContent.trim();
 
   const fields = {
     id: element.dataset.candidate,
-    created: element.querySelector('.divTableCellTime')?.textContent.trim(),
+    created: dayjs(created, "DD.MM.YYYY HH:mm").toString(),
     scrapped: false,
+    status: element.querySelector('.divTableCellStatus [data-controller="candidates-index"]')?.textContent?.trim(),
     candidate: {
       fullName,
       firstName,

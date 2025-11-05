@@ -1,12 +1,14 @@
 export type Settings = {
   webHookURL: string;
   vacanciesURLs: string;
+  skipBefore: string | null;
 }
 
 export type Application = {
   id: string;
   created: string;
   scrapped: boolean;
+  status: string;
   candidate: {
     fullName: string;
     firstName: string;

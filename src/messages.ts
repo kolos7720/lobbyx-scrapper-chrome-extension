@@ -4,6 +4,7 @@ export enum MessageTypes {
   Start = 'START',
   Finish = 'FINISH',
   Fail = 'FAIL',
+  StartPageScrapping = 'START_PAGE_SCRAPPING',
   ApplicationScrapped = 'APPLICATION_SCRAPPED',
   PageScrapped = 'PAGE_SCRAPPED',
 }
@@ -26,6 +27,11 @@ export type FailMessage = {
 export type ApplicationScrappedMessage = {
   type: MessageTypes.ApplicationScrapped;
   application: Application;
+}
+
+export type StartPageScrappingMessage = {
+  type: MessageTypes.StartPageScrapping;
+  settings: Settings;
 }
 
 export type PageScrappedMessage = {

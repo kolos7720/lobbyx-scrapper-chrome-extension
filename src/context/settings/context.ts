@@ -8,10 +8,11 @@ export type SettingsContextStateType = {
   vacanciesURLsList: string[];
 }
 
-export const initialSettingsContextState = {
+export const initialSettingsContextState: SettingsContextStateType = {
   settings: {
     webHookURL: '',
     vacanciesURLs: '',
+    skipBefore: null,
   },
 
   isLoading: false,

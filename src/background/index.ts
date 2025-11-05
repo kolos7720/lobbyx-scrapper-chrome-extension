@@ -1,5 +1,5 @@
 import "./sidePanel.ts";
-import { MessageTypes } from "../messages.ts";
+import { MessageTypes, type StartPageScrappingMessage } from "../messages.ts";
 import type { Application, Settings } from "../types.ts";
 import { initialScrapperContextState } from "../context/scrapper/constants.ts";
 import type { ScrapperContextStateType } from "../context/scrapper/types.ts";
@@ -16,7 +16,7 @@ const setState = async (newState: Partial<State>) => {
     ...newState,
   }
 
-  await chrome.storage.session.set({ state })
+  await chrome.storage.session.set({ state });
 }
 
 chrome.runtime.onMessage.addListener(async (message) => {
@@ -73,6 +73,8 @@ async function openNextURL(url: string) {
         target: { tabId: tab.id! },
         files: ["content.js"],
       })
+
+      await chrome.tabs.sendMessage<StartPageScrappingMessage>(tab.id!, { type: MessageTypes.StartPageScrapping, settings: settings! });
     } catch (error) {
       console.log('error');
       await handleError(error as Error);
