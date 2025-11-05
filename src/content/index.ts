@@ -58,11 +58,13 @@ function parseApplicationObjectFromElement(element: HTMLElement): Application {
   const firstName = fullNameSplit[0].trim();
   const middleName = fullNameSplit.length >= 3 ? fullNameSplit[1].trim() : null;
   const lastName = fullNameSplit[fullNameSplit.length - 1].trim();
+  const created = element.querySelector('.divTableCellTime')?.textContent.trim();
 
   const fields = {
     id: element.dataset.candidate,
-    created: element.querySelector('.divTableCellTime')?.textContent.trim(),
+    created: dayjs(created, "DD.MM.YYYY HH:mm").toString(),
     scrapped: false,
+    status: element.querySelector('.divTableCellStatus [data-controller="candidates-index"]')?.textContent?.trim(),
     candidate: {
       fullName,
       firstName,
