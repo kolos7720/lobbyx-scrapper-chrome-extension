@@ -13,7 +13,7 @@ dayjs.extend(customParseFormat);
 
 window.onload = async () => {
   chrome.runtime.onMessage.addListener(async (message) => {
-    if (message.type === 'start_scrapping') {
+    if (message.type === MessageTypes.StartPageScrapping) {
       await init(message.settings);
     }
   })
@@ -25,9 +25,7 @@ async function init(settings: Settings) {
 
     for (const element of applicationNodes) {
       const application = parseApplicationObjectFromElement(element as HTMLElement);
-      const laterThanSkipBeforeOptionValue = dayjs(dayjs(application.created, "DD.MM.YYYY HH:mm")).isAfter(dayjs(settings.skipBefore));
-
-      console.log('laterThanSkipBeforeOptionValue', laterThanSkipBeforeOptionValue);
+      const laterThanSkipBeforeOptionValue = dayjs(application.created).isAfter(dayjs(settings.skipBefore));
 
       const isApplicationShouldBeProcessed = !application.scrapped && laterThanSkipBeforeOptionValue;
 
