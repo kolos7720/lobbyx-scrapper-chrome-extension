@@ -16,7 +16,7 @@ const setState = async (newState: Partial<State>) => {
     ...newState,
   }
 
-  await chrome.storage.session.set({ state })
+  await chrome.storage.session.set({ state });
 }
 
 chrome.runtime.onMessage.addListener(async (message) => {
@@ -73,6 +73,8 @@ async function openNextURL(url: string) {
         target: { tabId: tab.id! },
         files: ["content.js"],
       })
+
+      await chrome.tabs.sendMessage(tab.id!, { type: 'start_scrapping', settings });
     } catch (error) {
       console.log('error');
       await handleError(error as Error);

@@ -76,8 +76,6 @@ export default function SettingsProvider({ children }: Props) {
       .split('\n')
       .map(url => url.trim()).filter(Boolean);
 
-    console.log('vacanciesURLs', vacanciesURLs);
-
     return vacanciesURLs;
   }, [state.settings.vacanciesURLs])
 

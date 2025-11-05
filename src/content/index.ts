@@ -1,4 +1,4 @@
-import type { Application } from "../types.ts";
+import type { Application, Settings } from "../types.ts";
 import {
   type ApplicationScrappedMessage,
   type FailMessage,
@@ -6,15 +6,32 @@ import {
   type PageScrappedMessage
 } from "../messages.ts";
 import sleep from "../utils/sleep.ts";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat.js";
+
+dayjs.extend(customParseFormat);
 
 window.onload = async () => {
+  chrome.runtime.onMessage.addListener(async (message) => {
+    if (message.type === 'start_scrapping') {
+      await init(message.settings);
+    }
+  })
+}
+
+async function init(settings: Settings) {
   try {
     const applicationNodes = document.querySelectorAll('[data-candidate]')
 
     for (const element of applicationNodes) {
       const application = parseApplicationObjectFromElement(element as HTMLElement);
+      const laterThanSkipBeforeOptionValue = dayjs(dayjs(application.created, "DD.MM.YYYY HH:mm")).isAfter(dayjs(settings.skipBefore));
 
-      if (!application.scrapped) {
+      console.log('laterThanSkipBeforeOptionValue', laterThanSkipBeforeOptionValue);
+
+      const isApplicationShouldBeProcessed = !application.scrapped && laterThanSkipBeforeOptionValue;
+
+      if (isApplicationShouldBeProcessed) {
         await handleApplication(application);
         await markAsScrapped(element as HTMLElement);
       } else {

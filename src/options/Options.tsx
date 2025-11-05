@@ -12,6 +12,7 @@ import type { FormikHelpers } from "formik/dist/types";
 import type { Settings } from "../types.ts";
 import SettingsProvider from "../context/settings/provider.tsx";
 import useSettingsContext from "../context/settings/useSettingsContext.ts";
+import EarlierThanDatePicker from "./components/EarlierThanDatePicker.tsx";
 
 function Options() {
   const { settings, isLoading, setSettings } = useSettingsContext();
@@ -40,6 +41,7 @@ function Options() {
                 <Stack spacing={2}>
                   <WebhookInput />
                   <ListOfVacanciesInput />
+                  <EarlierThanDatePicker />
                   <Stack direction="row" spacing={2} alignSelf="flex-end">
                     <SaveButton />
                     <CancelButton />
