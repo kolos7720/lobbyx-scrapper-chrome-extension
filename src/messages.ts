@@ -4,9 +4,9 @@ export enum MessageTypes {
   Start = 'START',
   Finish = 'FINISH',
   Fail = 'FAIL',
-  StartPageScrapping = 'START_PAGE_SCRAPPING',
   ApplicationScrapped = 'APPLICATION_SCRAPPED',
   PageScrapped = 'PAGE_SCRAPPED',
+  GetSettings = 'GET_SETTINGS',
 }
 
 export type StartMessage = {
@@ -29,12 +29,11 @@ export type ApplicationScrappedMessage = {
   application: Application;
 }
 
-export type StartPageScrappingMessage = {
-  type: MessageTypes.StartPageScrapping;
-  settings: Settings;
-}
-
 export type PageScrappedMessage = {
   type: MessageTypes.PageScrapped;
   nextPageURL?: string;
+}
+
+export type GetSettingsMessage = {
+  type: MessageTypes.GetSettings;
 }
