@@ -23,7 +23,7 @@ export default function EarlierThanDatePicker() {
             id: "skipBefore",
             name: "skipBefore",
             size: 'small',
-            helperText: 'Skip applications added earlier than',
+            helperText: 'Skip applications added earlier than.',
           }
         }}
         sx={{

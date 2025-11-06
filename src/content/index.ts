@@ -2,6 +2,7 @@ import type { Application, Settings } from "../types.ts";
 import {
   type ApplicationScrappedMessage,
   type FailMessage,
+  type GetSettingsMessage,
   MessageTypes,
   type PageScrappedMessage
 } from "../messages.ts";
@@ -11,12 +12,12 @@ import customParseFormat from "dayjs/plugin/customParseFormat.js";
 
 dayjs.extend(customParseFormat);
 
+const tag = "scrapped";
+
 window.onload = async () => {
-  chrome.runtime.onMessage.addListener(async (message) => {
-    if (message.type === MessageTypes.StartPageScrapping) {
-      await init(message.settings);
-    }
-  })
+  chrome.runtime.sendMessage<GetSettingsMessage>({ type: MessageTypes.GetSettings }, async (response) => {
+    await init(response.settings)
+  });
 }
 
 async function init(settings: Settings) {
@@ -25,9 +26,10 @@ async function init(settings: Settings) {
 
     for (const element of applicationNodes) {
       const application = parseApplicationObjectFromElement(element as HTMLElement);
+      const isSkipBeforeOptionsNotExist = !settings.skipBefore;
       const laterThanSkipBeforeOptionValue = dayjs(application.created).isAfter(dayjs(settings.skipBefore));
 
-      const isApplicationShouldBeProcessed = !application.scrapped && laterThanSkipBeforeOptionValue;
+      const isApplicationShouldBeProcessed = !application.scrapped && (isSkipBeforeOptionsNotExist || laterThanSkipBeforeOptionValue);
 
       if (isApplicationShouldBeProcessed) {
         await handleApplication(application);
@@ -51,17 +53,18 @@ async function init(settings: Settings) {
 }
 
 function parseApplicationObjectFromElement(element: HTMLElement): Application {
-  const fullName = element.querySelector('.form-name')!.textContent;
+  const fullName = element.querySelector('.form-name')!.textContent.trim();
   const fullNameSplit = fullName.split(' ');
   const firstName = fullNameSplit[0].trim();
   const middleName = fullNameSplit.length >= 3 ? fullNameSplit[1].trim() : null;
   const lastName = fullNameSplit[fullNameSplit.length - 1].trim();
-  const created = element.querySelector('.divTableCellTime')?.textContent.trim();
+  const created = element.querySelector('.divTableCellTime')?.textContent?.trim();
+  const isScrapped = element.querySelectorAll('.divTableCellTags')?.[0]?.textContent?.trim().includes(tag) || false;
 
   const fields = {
     id: element.dataset.candidate,
     created: dayjs(created, "DD.MM.YYYY HH:mm").toString(),
-    scrapped: false,
+    scrapped: isScrapped,
     status: element.querySelector('.divTableCellStatus [data-controller="candidates-index"]')?.textContent?.trim(),
     candidate: {
       fullName,
@@ -70,6 +73,10 @@ function parseApplicationObjectFromElement(element: HTMLElement): Application {
       lastName,
       email: element.querySelector('.form-info a')?.textContent,
       phoneNumber: element.querySelector('.form-info div:last-child')?.textContent,
+      age: Number(element.querySelector('.divTableCellAge')?.textContent?.trim()!),
+      serviceman: element.querySelectorAll('.divTableCellStatus')?.[1]?.textContent?.trim() === 'Так',
+      rank: element.querySelector('.divTableCellRank')?.textContent?.trim(),
+      source: element.querySelector('.divTableCellSourse')?.textContent?.trim(),
     },
     vacancy: {
       title: document.querySelector('h1')?.textContent.split(' - ')[0].trim(),
@@ -79,9 +86,22 @@ function parseApplicationObjectFromElement(element: HTMLElement): Application {
 
   const files = element.querySelector('.display-files')?.children;
 
+  let addendumFilesCounter = 1;
+
   files && Array.from(files).forEach((file) => {
     if (file.textContent.includes('CV')) {
-      fields.candidate.cvLink = file.getAttribute('href') || undefined;
+      fields.candidate.cvLink = window.location.origin + file.getAttribute('href');
+    }
+
+    if (file.textContent.includes('Cover Letter')) {
+      fields.candidate.coverLetterLink = window.location.origin + file.getAttribute('href');
+    }
+
+    if (file.textContent.includes('Addendum')) {
+      // @ts-ignore
+      fields.candidate[`addendumLink${addendumFilesCounter}`] = window.location.origin + file.getAttribute('href');
+
+      addendumFilesCounter++
     }
   })
 
@@ -99,8 +119,6 @@ async function markAsScrapped(element: HTMLElement) {
   }
 
   async function addTag() {
-    const tag = "scrapped";
-
     const input = element.querySelector('[data-target="candidate-line.tags"]') as HTMLInputElement
     const currentInputValue = input.value ? JSON.parse(input.value) : [];
     const newInputValue = [...currentInputValue, { value: tag }];

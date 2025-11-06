@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "name": "LobbyX Scrapper",
   "icons": {
     "32": "icons/icon32.png"
