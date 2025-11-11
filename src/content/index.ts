@@ -36,6 +36,8 @@ async function init(settings: Settings) {
         await markAsScrapped(element as HTMLElement);
       } else {
         await finish();
+
+        return;
       }
     }
 
@@ -145,10 +147,10 @@ async function markAsScrapped(element: HTMLElement) {
   enableEditMode();
   // I know it's not the best way to do it, but it works and
   // I don't have time to make it better.
-  await sleep(300);
+  await sleep(400);
   await addTag();
   saveChanges();
-  await sleep(100);
+  await sleep(200);
 }
 
 function getNextPageURL() {
